@@ -1,3 +1,4 @@
+ColorCom is a complex microservices-based e-commerce platform. It utilizes a modern stack with Node.js (NestJS) for services, Kong for API Management, and a variety of backing services including Postgres, Redis, Elasticsearch, MongoDB, and Kafka.
 # ColorCom — Local Development
 
 This repository contains a domain-driven microservices example for an e-commerce platform (ColorCom).
