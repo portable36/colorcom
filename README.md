@@ -20,4 +20,4 @@ bash scripts/e2e-local.sh
 - Service docs & per-service Quickstarts are under `microservices/<service>/README.md`.
 - See `Quickstart.md` for a short, actionable getting-started guide.
 
-If you'd like, I can add a `docs/` folder with more getting-started guides and example `.env.example` files for additional services.
+
