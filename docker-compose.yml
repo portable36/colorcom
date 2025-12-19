@@ -1,0 +1,388 @@
+version: "3.9"
+
+services:
+  kong:
+    image: kong:latest
+    container_name: colorcom-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_LOG_LEVEL: info
+      KONG_PLUGINS: bundled
+      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+    volumes:
+      - ./kong/kong.yml:/kong/kong.yml:ro
+    ports:
+      - "8000:8000"   # Proxy (public API)
+      - "8001:8001"   # Admin API
+      - "8443:8443"   # HTTPS proxy
+      - "8444:8444"   # HTTPS admin
+    networks:
+      - colorcom-net
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - auth-service
+      - product-service
+      - vendor-service
+      - cart-service
+      - order-service
+
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+    container_name: colorcom-auth
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: colorcom
+      DB_PASSWORD: colorcom123
+      DB_NAME: colorcom_auth
+      JWT_SECRET: your-super-secret-jwt-key-change-in-prod
+      JWT_EXPIRY: 15m
+      REFRESH_TOKEN_EXPIRY: 7d
+    ports:
+      - "3001:3001"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+    volumes:
+      - ./microservices/auth-service:/app
+    command: npx nest start --watch
+
+  product-service:
+    build:
+      context: ./microservices/product-service
+    container_name: colorcom-product
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: "postgresql://colorcom:colorcom123@postgres:5432/colorcom_products"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      REDIS_URL: "redis://redis:6379"
+      CORS_ORIGIN: "http://localhost:3000"
+    ports:
+      - "3002:3002"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+      - elasticsearch
+      - redis
+    command: npm run dev
+
+  vendor-service:
+    build:
+      context: ./microservices/vendor-service
+    container_name: colorcom-vendor
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      DATABASE_URL: "postgresql://colorcom:colorcom123@postgres:5432/colorcom_vendors"
+    ports:
+      - "3003:3003"
+    networks:
+      - colorcom-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  cart-service:
+    build:
+      context: ./microservices/cart-service
+    container_name: colorcom-cart
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3004:3004"
+    networks:
+      - colorcom-net
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./microservices/order-service
+    container_name: colorcom-order
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      DATABASE_URL: postgresql://colorcom:colorcom123@postgres:5432/colorcom_orders
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "3005:3005"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+      - kafka
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: colorcom-postgres
+    environment:
+      POSTGRES_USER: colorcom
+      POSTGRES_PASSWORD: colorcom123
+      POSTGRES_MULTIPLE_DATABASES: "colorcom_auth,colorcom_products,colorcom_vendors,colorcom_cart,colorcom_orders,colorcom_shipments,colorcom_crm,colorcom_inventory,colorcom_payments"
+    ports:
+      - "5432:5432"
+    networks:
+      - colorcom-net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./kong/init-postgres.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U colorcom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: colorcom-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - colorcom-net
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: colorcom-elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - colorcom-net
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: colorcom-kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - colorcom-net
+    depends_on:
+      - zookeeper
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  kafka-consumer:
+    build:
+      context: ./microservices/kafka-consumer
+    container_name: colorcom-kafka-consumer
+    environment:
+      NODE_ENV: production
+      KAFKA_BROKERS: kafka:9092
+      TOPIC: order.created
+    networks:
+      - colorcom-net
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  shipping-service:
+    build:
+      context: ./microservices/shipping-service
+    container_name: colorcom-shipping
+    environment:
+      NODE_ENV: production
+      PORT: 3010
+      KAFKA_BROKERS: kafka:9092
+      TOPIC: order.created
+    ports:
+      - "3010:3010"
+    networks:
+      - colorcom-net
+    depends_on:
+      - kafka
+    restart: unless-stopped
+
+  cms-service:
+    build:
+      context: ./microservices/cms-service
+    container_name: colorcom-cms
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      MONGO_URL: mongodb://mongo:27017/colorcom_cms
+    ports:
+      - "3006:3006"
+    networks:
+      - colorcom-net
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  crm-service:
+    build:
+      context: ./microservices/crm-service
+    container_name: colorcom-crm
+    environment:
+      NODE_ENV: production
+      PORT: 3007
+      DATABASE_URL: postgresql://colorcom:colorcom123@postgres:5432/colorcom_crm
+    ports:
+      - "3007:3007"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  inventory-service:
+    build:
+      context: ./microservices/inventory-service
+    container_name: colorcom-inventory
+    environment:
+      NODE_ENV: production
+      PORT: 3008
+      DATABASE_URL: postgresql://colorcom:colorcom123@postgres:5432/colorcom_inventory
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "3008:3008"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+      - kafka
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./microservices/payment-service
+    container_name: colorcom-payment
+    environment:
+      NODE_ENV: production
+      PORT: 3009
+      DATABASE_URL: postgresql://colorcom:colorcom123@postgres:5432/colorcom_payments
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "3009:3009"
+    networks:
+      - colorcom-net
+    depends_on:
+      - postgres
+      - kafka
+    restart: unless-stopped
+
+  review-service:
+    build:
+      context: ./microservices/review-service
+    container_name: colorcom-review
+    environment:
+      NODE_ENV: production
+      PORT: 3011
+      MONGO_URL: mongodb://mongo:27017/colorcom_reviews
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "3011:3011"
+    networks:
+      - colorcom-net
+    depends_on:
+      - mongo
+      - kafka
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    container_name: colorcom-mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - colorcom-net
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: colorcom-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - colorcom-net
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: colorcom-prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - colorcom-net
+    volumes:
+      - ./kong/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: colorcom-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3050:3000"
+    networks:
+      - colorcom-net
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  postgres_data:
+  redis_data:
+  elasticsearch_data:
+  kafka_data:
+  zookeeper_data:
+  prometheus_data:
+  grafana_data:
+  mongo_data:
+
+networks:
+  colorcom-net:
+    driver: bridge

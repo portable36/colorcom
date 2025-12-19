@@ -1,0 +1,90 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:3001
+    routes:
+      - name: auth-login
+        paths:
+          - /auth/login
+      - name: auth-refresh
+        paths:
+          - /auth/refresh
+      - name: auth-logout
+        paths:
+          - /auth/logout
+      - name: auth-me
+        paths:
+          - /auth/me
+
+  - name: product-service
+    url: http://product-service:3002
+    routes:
+      - name: products-list
+        paths:
+          - /products
+      - name: products-detail
+        paths:
+          - /products/:id
+
+  - name: vendor-service
+    url: http://vendor-service:3003
+    routes:
+      - name: vendors-list
+        paths:
+          - /vendors
+      - name: vendors-detail
+        paths:
+          - /vendors/:id
+
+  - name: cart-service
+    url: http://cart-service:3004
+    routes:
+      - name: cart-operations
+        paths:
+          - /cart
+
+  - name: order-service
+    url: http://order-service:3005
+    routes:
+      - name: orders-list
+        paths:
+          - /orders
+      - name: orders-detail
+        paths:
+          - /orders/:id
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - http://localhost:3000
+        - http://localhost:8000
+      credentials: true
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Language
+        - Content-Language
+        - Content-Type
+        - Authorization
+        - x-tenant-id
+      max_age: 3600
+
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
+
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "x-gateway-version:1.0.0"

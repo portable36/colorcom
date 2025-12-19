@@ -1,0 +1,91 @@
+name: E2E Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build and start services
+        run: |
+          docker compose up -d --build
+
+      - name: Wait for services
+        run: docker compose ps
+
+      - name: Install e2e runner deps
+        run: |
+          cd tools/e2e-runner
+          npm ci
+
+      - name: Install shipping service deps (for CI DB migrations)
+        run: |
+          cd microservices/shipping-service
+          npm ci
+
+      - name: Generate Prisma client for shipping service
+        run: |
+          cd microservices/shipping-service
+          npx prisma generate
+
+      - name: Apply Prisma schema to DB for shipping service
+        run: |
+          # Wait a bit for Postgres to accept connections, then apply schema
+          docker compose exec -T colorcom-shipping sh -c "npx prisma db push --accept-data-loss" || true
+
+      - name: Run e2e runner
+        run: node tools/e2e-runner/index.js --no-compose
+
+      - name: Teardown
+        if: always()
+        run: |
+          docker compose down -v --remove-orphans
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Ensure Docker Compose available
+        run: docker compose version
+
+      - name: Bring up stack
+        run: docker compose up -d --build
+
+      - name: Install E2E runner deps
+        run: |
+          cd tools/e2e-runner
+          npm install --silent
+
+      - name: Run E2E runner (skip compose)
+        run: node tools/e2e-runner/index.js --no-compose
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v --remove-orphans

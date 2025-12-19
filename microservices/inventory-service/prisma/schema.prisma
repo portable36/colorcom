@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  tenantId  String   @db.VarChar(100)
+  name      String
+  location  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stocks    WarehouseStock[]
+  alerts    StockAlert[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+}
+
+model WarehouseStock {
+  id           String   @id @default(cuid())
+  warehouseId  String
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  tenantId     String   @db.VarChar(100)
+  productId    String   @db.VarChar(100)
+  
+  available    Int      @default(0)
+  reserved     Int      @default(0)
+  damaged      Int      @default(0)
+  quantity     Int      @default(0)
+  reorderLevel Int      @default(10)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([warehouseId, productId])
+  @@index([tenantId])
+  @@index([productId])
+  @@index([warehouseId])
+}
+
+model StockAlert {
+  id          String   @id @default(cuid())
+  tenantId    String   @db.VarChar(100)
+  productId   String   @db.VarChar(100)
+  warehouseId String?
+  warehouse   Warehouse? @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  
+  alertType   AlertType @default(LOW_STOCK)
+  severity    String    @default("warning")
+  message     String
+  
+  isResolved  Boolean   @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([productId])
+  @@index([isResolved])
+}
+
+enum AlertType {
+  LOW_STOCK
+  OUT_OF_STOCK
+  OVERSTOCK
+}
+
+model InventoryItem {
+  id        String   @id @default(cuid())
+  tenantId  String   @db.VarChar(100)
+  productId String   @db.VarChar(100)
+  quantity  Int      @default(0)
+  reserved  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([productId])
+}

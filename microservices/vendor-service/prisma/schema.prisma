@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  email       String   @unique
+  phone       String?
+  logo        String?
+  description String?
+  website     String?
+  country     String?
+  city        String?
+  address     String?
+  bankAccount String?
+  taxId       String?
+  
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  productCount Int     @default(0)
+  
+  metadata    Json?
+
+  // Relations
+  storeSettings StoreSetting[]
+  commissionRules CommissionRule[]
+  payoutConfig PayoutConfig?
+  analytics VendorAnalytics[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model StoreSetting {
+  id         String   @id @default(cuid())
+  vendorId   String
+  currency   String   @default("USD")
+  locale     String?  
+  timezone   String?  
+  storeName  String?
+  description String?
+  isVisible  Boolean  @default(true)
+  shippingPolicy Json?
+  returnPolicy   Json?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("store_settings")
+}
+
+model CommissionRule {
+  id          String   @id @default(cuid())
+  vendorId    String
+  name        String
+  description String?
+  rate        Float    // percent or fixed depending on type
+  type        String   @default("percentage") // 'percentage' | 'fixed'
+  minAmount   Float? 
+  maxAmount   Float?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("commission_rules")
+}
+
+model PayoutConfig {
+  id            String   @id @default(cuid())
+  vendorId      String   @unique
+  method        String   // 'bank_transfer', 'paypal', etc.
+  details       Json
+  scheduleDays  Int      @default(7)
+  minPayout     Float    @default(10.0)
+  enabled       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("payout_configs")
+}
+
+model VendorAnalytics {
+  id         String   @id @default(cuid())
+  vendorId   String
+  date       DateTime @default(now())
+  totalSales Float    @default(0)
+  orders     Int      @default(0)
+  visitors   Int      @default(0)
+  conversionRate Float @default(0)
+  revenueByChannel Json?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([date])
+  @@map("vendor_analytics")
+}
