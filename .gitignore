@@ -16,6 +16,8 @@ coverage/
 .env.local
 .env.test
 .env.production
+# Allow checked-in examples
+!**/.env.example
 
 # Editor
 .vscode/
