@@ -1,2 +1,23 @@
-# colorcom
-Multi-Tenant E-Commerce micro-services App with kong, Nestjs, Nextsj+PWA
+# ColorCom — Local Development
+
+This repository contains a domain-driven microservices example for an e-commerce platform (ColorCom).
+
+Quick pointers:
+
+- Start the full dev stack:
+
+```bash
+docker compose up -d --build
+```
+
+- Run the E2E smoke test:
+
+```bash
+bash scripts/e2e-local.sh
+# or: npm run e2e:local
+```
+
+- Service docs & per-service Quickstarts are under `microservices/<service>/README.md`.
+- See `Quickstart.md` for a short, actionable getting-started guide.
+
+If you'd like, I can add a `docs/` folder with more getting-started guides and example `.env.example` files for additional services.
