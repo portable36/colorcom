@@ -1,0 +1,528 @@
+1. Identity & Auth Service
+
+	•	User login / registration
+	•	Multi-tenant support
+	•	Role-based access 
+	•	Token rotation & refresh
+	•	Social login (Google, Facebook)
+	•	Device/session tracking
+	•	Tenant resolution
+	•	Rate limiting
+	•	Auth validation
+	•	Request routing
+	•	Circuit breaking
+	•	Centralized auth
+	•	Fine-grained permissions
+
+2. Vendor / Merchant Service (Multi-Vendor)
+
+	•	Vendor onboarding
+	•	Store settings
+	•	Commission rules
+	•	Payout configuration
+	•	Vendor analytics
+	•	Report (PDF)
+	•	Compliance checks
+	•	Store configuration
+	•	Seller performance metrics
+	
+3. Product Catalog Service
+
+	•	Products, variants, attributes
+	•	Categories & tags
+	•	SEO metadata
+	•	Bulk import/export
+	•	Search indexing
+	•	Images & videos
+	•	Category taxonomy
+
+4. Inventory Service
+
+	•	Stock levels
+	•	Reservations (during checkout)
+	•	Low-stock alerts
+	•	Multi-warehouse support
+	•	create/delete/update warehouse
+	•	Event-driven sync
+	•	Stock tracking
+	•	Report (PDF)
+	•	Prevent overselling
+	
+5. Cart Service
+
+	•	Guest & user carts
+	•	Cart expiration
+	•	Coupon preview
+	•	Price recalculation
+
+6. Order Service
+
+	•	Order creation
+	•	Order status (Pending, Paid, Shipped)
+	•	Order history
+	•	Invoice generation
+	•	Returns & refunds
+	•	Order lifecycle
+	•	Status tracking
+	•	Multi-vendor split orders
+	•	Report (PDF)
+	
+🔁 Sync (REST / gRPC)
+
+Used for:
+
+Reads
+
+Validation
+
+Example:
+
+Order → Inventory (Check stock)
+
+📩 Async (Events)
+
+Used for:
+
+State changes
+
+Scalability
+
+Example:
+
+OrderCreated → Payment → Inventory → Shipping
+
+
+Tools
+
+Kafka / EventBridge / SNS/SQS
+
+1. User places order
+2. Order Service creates order (PENDING)
+3. Event: OrderCreated
+4. Payment Service charges
+5. Event: PaymentSuccess
+6. Inventory reserves stock
+7. Fulfillment starts
+8. Order becomes CONFIRMED
+If payment fails → compensation events rollback inventory
+
+	
+7. Payment Service
+
+	•	Payment intents
+	•	Webhook verification
+	•	bKash, SSLCommerz, Stripe, PayPal
+	•	Refund handling
+	•	Fraud checks
+	•	Payment intent
+	•	Webhook handling
+	•	Refunds
+	•	Gateway integration
+	•	Report (PDF)
+
+8. Shipping / Logistics Service
+ 
+	•	Pathao / Steadfast integration
+	•	Tracking IDs
+	•	Delivery status updates
+	•	Courier rate calculation
+	•	Label generation
+	•	Courier integration
+	•	Shipping cost calculation
+	•	Tracking
+	•	Report (PDF)
+	•	Shipping rules
+	•	Warehouse selection
+	
+9. Accounting / Finance Service
+
+	•	Vendor payouts
+	•	Platform commissions
+	•	Ledger entries
+	•	Tax/VAT
+	•	Financial reports
+	•	Profit/Loss
+	•	Expance, product cost, merketing, delivery cost etc
+	•	Invoices
+	•	Report (PDF)
+
+10. Review & Rating Service
+
+	•	Product reviews
+	•	Ratings
+	•	Moderation
+	•	Vendor ratings
+	•	Abuse prevention
+
+11. Wishlist Service
+
+	•	Wishlist management
+	•	Stock notifications
+	•	Price-drop alerts
+	•	Save products
+	•	Personalized lists
+
+12. Notification Service
+
+	•	Email
+	•	SMS
+	•	Push notifications
+	•	Order updates
+	•	OTP delivery
+
+
+13. Search Service
+
+	•	Full-text search
+	•	Filters & sorting
+	•	Auto-suggest
+	•	Ranking & boosting
+	•	Keyword search
+	•	Filters
+	•	Ranking algorithms
+	•	Personalization signals
+
+14. Analytics & Reporting Service
+
+	•	Sales reports
+	•	Funnel tracking
+	•	Vendor performance
+	•	Customer behavior
+	•	Accounting report
+	•	store, inventory report
+	•	Shipping report
+	•	All service report in PDF
+	
+15. AI / Recommendation Service (Modern)
+
+	•	Product recommendations
+	•	Related items
+	•	AI chatbot (customer support)
+	•	Demand prediction
+
+
+16. Caching Layer
+	•	Redis
+	•	Object cache
+	•	Session cache
+	•	Product cache
+	•	HTTP cach
+	
+17. Event Bus
+
+	•	Order events
+	•	Payment events
+	•	Inventory sync
+	•	Email triggers
+
+
+18. Observability Stack
+
+	•	Centralized logging 
+	•	Metrics (Prometheus)
+	•	Tracing 
+	•	Error tracking 
+
+
+19. Security Must-Haves
+
+ 	•	HTTPS/TLS everywhere
+ 	•	Tenant data isolation
+ 	•	Rate limiting
+ 	•	API signing
+ 	•	Webhook validation
+ 	•	Encryption at rest
+ 	•	Secrets manager
+ 	•	Authentication
+	•	CORS
+	•	Request validation
+	•	gRPC ↔ HTTP bridge
+	•	API tokens
+	•	mTLS (service-to-service)
+	•	WAF
+	•	Signed internal requests
+	•	Least privilege IAM
+	•	Webhook verification
+
+20. Tenant Management Service
+
+	•	Create/manage tenants (shops)
+	•	Subscription & plan limits
+	•	Feature toggles
+	•	Domain mapping (shop.domain.com)
+
+21. Pricing & Promotion Service
+
+	•	Discounts
+	•	Coupons
+	•	Flash sales
+	•	Dynamic pricing
+
+22. Return & Refund Service
+
+	•	Return requests
+	•	Refund workflow
+	•	Dispute handling
+
+23. Marketing & Analytics Service
+
+	•	Campaign tracking
+	•	Google Tag Manager
+	•	Facebook Pixel
+	•	Conversion analytics
+
+24. AI Customer Support Service
+	•	Chatbot
+	•	Auto ticket routing
+
+25. File / Media Service
+	•	Image & video storage
+	•	Image & video compression resize
+	•	CDN integration
+
+🧩 Optional but Enterprise-Level
+
+	•	Fraud Detection Service
+	•	Suspicious order detection
+	•	Risk scoring
+	•	Marketplace Settlement Service
+	•	Recommendation Engine
+	•	Data Warehouse / BI Service
+
+🔑 Golden Rule for Multi-Tenancy
+
+	•	Every service must: Accept tenant_id
+	•	Enforce tenant isolation
+	•	Emit tenant-aware events
+	•	Cache per tenant
+	•	Each service independently scalable
+	•	No shared databases
+	•	No direct DB access between services
+	•	Everything via APIs or events
+	•	Each service owns its database
+	•	No cross-service joins
+	•	Distributed tracing
+	•	tenant_id must come from: Gateway resolver, Never from client body
+dempotency Service / Layer
+
+This is non-negotiable for payments & orders.
+
+Where:
+
+Order creation
+
+Payment webhooks
+
+Inventory reservation
+
+libs/common/idempotency/
+├── idempotency.service.ts
+├── idempotency.guard.ts
+└── idempotency.repository.ts
+
+Use:
+
+Idempotency-Key header
+
+Redis / DB unique constraint
+
+
+🛍 Storefront
+
+Tech: Next.js + PWA
+	•	SSR for SEO
+	•	Offline support
+	•	Lightning-fast UI
+	•	Mobile-first
+
+Reporting (PDF)
+PDF generation should be async.
+Request report
+→ emit ReportRequested
+→ background worker generates PDF
+→ store in Media Service
+→ notify user
+Never generate PDFs in HTTP request threads.
+
+Explicit Outbox Pattern
+Add to each service DB:
+outbox_events
+- id
+- aggregate_type
+- aggregate_id
+- event_type
+- payload
+- status
+Then:
+
+DB transaction → write business data + outbox
+
+Background worker → publish to Kafka
+
+This avoids “order created but event lost”.
+
+
+Monorepo Structure
+
+ecommerce-platform/
+├── api-gateway/          # Kong / Edge Gateway
+├── microservices/            # All deployable applications
+│   ├── auth-service/         # IAM
+│   ├── tenant-service/       # Tenant & subscription
+│   ├── product-service/
+│   ├── search-service/
+│   ├── cart-service/
+│   ├── order-service/
+│   ├── inventory-service/
+│   ├── payment-service/
+│   ├── shipping-service/
+│   ├── review-service/
+│   ├── notification-service/
+│   ├── cms-service/
+│   ├── ai-service/
+│   └── web-frontend/         # Next.js PWA (BFF)
+│
+├── libs/                     # Shared but versioned libraries
+│   ├── common/               # Logger, exceptions, utils
+│   ├── auth/                 # JWT, guards, decorators
+│   ├── tenant/               # Tenant context resolver
+│   ├── database/             # DB base adapters
+│   ├── messaging/            # Kafka/RabbitMQ wrapper
+│   ├── observability/        # Tracing, metrics
+│   └── contracts/            # Events & DTOs (no logic)
+│
+├── infra/                    # Infrastructure as code
+│   ├── docker/
+│   ├── kubernetes/
+│   ├── terraform/
+│   ├── kong/
+│   └── monitoring/
+│
+├── scripts/                  # Dev & CI scripts
+├── docs/                     # Architecture & ADRs
+├── .github/                  # CI/CD pipelines
+├── package.json
+└── nx.json                  # Monorepo tool
+
+
+order-service/
+├── src/
+│   ├── main.ts               # Bootstrap
+│   ├── app.module.ts
+│   │
+│   ├── modules/              # Feature-first design
+│   │   ├── order/
+│   │   │   ├── order.controller.ts
+│   │   │   ├── order.service.ts
+│   │   │   ├── order.repository.ts
+│   │   │   ├── order.entity.ts
+│   │   │   ├── order.mapper.ts
+│   │   │   ├── order.events.ts
+│   │   │   ├── order.saga.ts        # Compensation logic
+│   │   │   ├── dto/
+│   │   │   └── tests/
+│   │   │
+│   │   └── order-item/
+│   │
+│   ├── infrastructure/       # External dependencies
+│   │   ├── database/
+│   │   │   ├── postgres.config.ts
+│   │   │   └── migrations/
+│   │   ├── messaging/
+│   │   │   ├── kafka.producer.ts
+│   │   │   └── kafka.consumer.ts
+│   │   ├── cache/
+│   │   │   └── redis.client.ts
+│   │   └── http/
+│   │       └── payment.client.ts
+│   │
+│   ├── common/
+│   │   ├── filters/
+│   │   ├── guards/
+│   │   ├── interceptors/
+│   │   ├── pipes/
+│   │   └── constants/
+│   │
+│   ├── config/
+│   │   ├── app.config.ts
+│   │   ├── database.config.ts
+│   │   └── kafka.config.ts
+│   │
+│   └── health/
+│       └── health.controller.ts
+│
+├── test/
+├── Dockerfile
+├── .env.example
+└── README.md
+
+
+Shared Libraries
+
+libs/common
+common/
+├── logger/
+├── exceptions/
+├── response/
+├── utils/
+└── base-entity.ts
+
+libs/auth
+
+auth/
+├── jwt/
+├── guards/
+├── decorators/
+└── rbac/
+
+libs/tenant
+
+tenant/
+├── tenant-context.ts
+├── tenant.middleware.ts
+├── tenant.guard.ts
+└── tenant.resolver.ts
+
+Messaging Contracts
+
+contracts/
+├── events/
+│   ├── order/
+│   │   ├── order-created.v1.ts
+│   │   ├── order-paid.v1.ts
+│   │   └── order-cancelled.v1.ts
+│   ├── payment/
+│   └── inventory/
+│
+└── commands/
+
+API Gateway
+
+infra/kong/
+├── services/
+│   ├── auth.yaml
+│   ├── order.yaml
+│   └── product.yaml
+├── routes/
+├── plugins/
+│   ├── tenant-resolver
+│   ├── rate-limit
+│   └── jwt-auth
+└── kong.yml
+
+Frontend (Next.js BFF Pattern)
+
+web-frontend/
+├── app/
+├── src/
+│   ├── bff/
+│   │   ├── order.api.ts
+│   │   ├── product.api.ts
+│   │   └── cart.api.ts
+│   ├── components/
+│   ├── hooks/
+│   ├── stores/
+│   └── utils/
+└── middleware.ts   # Tenant/domain resolver
+
+
