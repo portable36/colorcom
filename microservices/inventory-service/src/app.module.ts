@@ -7,10 +7,11 @@ import { InventoryController } from './infrastructure/controllers/inventory.cont
 import { PrismaService } from './infrastructure/database/prisma.service';
 import { KafkaService } from './infrastructure/database/kafka.service';
 import { MetricsController } from './infrastructure/controllers/metrics.controller';
+import { InventoryMetricsService } from './infrastructure/metrics/inventory-metrics.service';
 
 @Module({
   imports: [],
-  providers: [InventoryService, WarehouseService, StockLevelService, ReservationService, PrismaService, KafkaService],
+  providers: [InventoryService, WarehouseService, StockLevelService, ReservationService, PrismaService, KafkaService, InventoryMetricsService],
   controllers: [InventoryController, MetricsController],
 })
 export class AppModule {}

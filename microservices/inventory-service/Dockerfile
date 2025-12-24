@@ -6,7 +6,7 @@ COPY package.json tsconfig.json nest-cli.json ./
 
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 

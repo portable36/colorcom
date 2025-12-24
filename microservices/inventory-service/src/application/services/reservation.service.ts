@@ -85,7 +85,7 @@ export class ReservationService {
       }
     }
 
-    results.failed.forEach((f) => {
+    results.failed.forEach((f: any) => {
       this.metrics.recordReservationFailed(tenantId, warehouseId, f.reason || 'unknown');
     });
 

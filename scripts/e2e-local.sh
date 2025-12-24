@@ -58,12 +58,13 @@ ORDER_RESP=$(curl -s -X POST http://localhost:3005/orders \
   -H 'Content-Type: application/json' \
   -H 'x-tenant-id: default' \
   -H 'x-user-id: e2e-user-1' \
-  -d '{"tenantId":"default","userId":"e2e-user-1","items":[{"productId":"cmja0y4vw0003wkvmt10dpys6","quantity":1}]}' )
+  -d '{"cartItems":[{"productId":"cmja0y4vw0003wkvmt10dpys6","vendorId":"vendor-1","name":"E2E Product","price":10,"quantity":1}],"shippingAddress":{"street":"1 E2E St","city":"E2E","state":"E2","zipCode":"00000","country":"E2"}}' )
 
 echo "Order response: $ORDER_RESP"
 
 # Extract order id using jq if available, else basic grep
 ORDER_ID=""
+# Use jq if available; accept either top-level id or nested orderId
 if command -v jq >/dev/null 2>&1; then
   ORDER_ID=$(echo "$ORDER_RESP" | jq -r '.id // .orderId // empty') || true
 else

@@ -12,7 +12,7 @@ COPY tsconfig*.json ./
 
 # Install dependencies with Prisma skip
 ENV PRISMA_SKIP_POSTINSTALL_CHECK=true
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src ./src

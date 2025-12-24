@@ -7,7 +7,7 @@ COPY package.json package.json
 # Install openssl for Prisma runtime
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 

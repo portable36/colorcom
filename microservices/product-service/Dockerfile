@@ -13,7 +13,7 @@ COPY package*.json ./
 COPY prisma ./prisma
 
 # Install all dependencies (including devDependencies)
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Install NestJS CLI globally
 RUN npm install -g @nestjs/cli

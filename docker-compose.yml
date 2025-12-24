@@ -54,8 +54,6 @@ services:
       - colorcom-net
     depends_on:
       - postgres
-    volumes:
-      - ./microservices/auth-service:/app
     command: npx nest start --watch
 
   product-service:
@@ -131,7 +129,9 @@ services:
       - kafka
 
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: ./kong/postgres.Dockerfile
     container_name: colorcom-postgres
     environment:
       POSTGRES_USER: colorcom
@@ -143,7 +143,6 @@ services:
       - colorcom-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./kong/init-postgres.sh:/docker-entrypoint-initdb.d/init-databases.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U colorcom"]
       interval: 10s
@@ -328,7 +327,7 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
