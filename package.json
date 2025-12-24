@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "check": "node tools/run-checks.js",
     "e2e:ci": "node tools/e2e-runner/index.js --no-compose",
     "e2e:local": "bash scripts/e2e-local.sh"
   }

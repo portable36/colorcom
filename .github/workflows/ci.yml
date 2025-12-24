@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install root deps
+        run: npm ci
+      - name: Run repository checks
+        run: npm run check
+      - name: Confirm architecture doc present
+        run: test -f docs/ARCHITECTURE.md && echo "OK: docs/ARCHITECTURE.md exists" || (echo "Missing docs/ARCHITECTURE.md" && exit 1)
