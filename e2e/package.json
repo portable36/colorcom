@@ -1,0 +1,11 @@
+{
+  "name": "colorcom-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test --config=./playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.38.0"
+  }
+}
