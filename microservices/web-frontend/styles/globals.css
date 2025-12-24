@@ -9,3 +9,18 @@ html, body, #__next {
 body {
   @apply bg-gray-50 text-gray-900;
 }
+
+:focus {
+  outline: none;
+}
+
+/* Improve focus visibility for keyboard users */
+:focus-visible {
+  outline: 3px solid rgba(59,130,246,0.4);
+  outline-offset: 2px;
+}
+
+/* Mobile typography */
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+}

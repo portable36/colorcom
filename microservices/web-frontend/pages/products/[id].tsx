@@ -15,12 +15,19 @@ export default function ProductPage() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-semibold">{data.name}</h1>
-      <p className="mt-2">{data.description}</p>
-      <p className="mt-4 font-bold">${data.price}</p>
-      <div className="mt-4">
-        <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => addItem({ id: data.id, name: data.name, price: data.price, quantity: 1 })}>Add to cart</button>
-      </div>
+      <article aria-labelledby="product-title">
+        <h1 id="product-title" className="text-xl font-semibold">{data.name}</h1>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="h-64 bg-gray-100 rounded flex items-center justify-center text-gray-500">{data.image ? <img src={data.image} alt={data.name} /> : 'No image'}</div>
+          <div>
+            <p className="mt-2 text-gray-700">{data.description}</p>
+            <p className="mt-4 font-bold">${data.price}</p>
+            <div className="mt-4">
+              <button className="bg-blue-600 text-white px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" onClick={() => addItem({ id: data.id, name: data.name, price: data.price, quantity: 1 })} aria-label={`Add ${data.name} to cart`}>Add to cart</button>
+            </div>
+          </div>
+        </div>
+      </article>
     </Layout>
   );
 }
