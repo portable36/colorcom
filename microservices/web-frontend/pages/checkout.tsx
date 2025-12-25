@@ -21,12 +21,14 @@ export default function Checkout() {
     setResult(null);
     try {
       const payload = {
-        cartItems: items.map((i) => ({ productId: i.id, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown' })),
+        cartItems: items.map((i) => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown', options: (i as any).options || undefined })),
         shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' },
       };
       const res = await createOrder(payload);
       setResult(res);
       clear();
+      // navigate to confirmation page
+      if (res && (res as any).id) router.push(`/checkout/confirmation?id=${(res as any).id}`);
     } catch (err: any) {
       setResult({ error: String(err.message || err) });
     } finally {
