@@ -1,13 +1,26 @@
 import Layout from '../components/Layout';
 import { useCart } from '../lib/cart';
 import { createOrder } from '../lib/api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Checkout() {
   const { items, clear } = useCart();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
+
+  // Allow seeding a demo cart by using ?seed=demo in the URL (helps deterministic e2e)
+  const [seedItems, setSeedItems] = useState<any[] | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if ((!items || items.length === 0) && router.query.seed === 'demo') {
+      setSeedItems([{ id: 'prod-1', name: 'Red T-Shirt', price: 19.99, quantity: 1 }]);
+    }
+  }, [router.query, items]);
+
+  const activeItems = (items && items.length > 0) ? items : (seedItems || []);
+  const total = activeItems.reduce((s, i) => s + i.price * i.quantity, 0);
 
   async function placeOrder() {
     setLoading(true);

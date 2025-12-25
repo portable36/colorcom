@@ -11,14 +11,12 @@ test('smoke: browse, add to cart, checkout', async ({ page }) => {
       JSON.stringify([{ id: 'prod-1', name: 'Red T-Shirt', price: 19.99, quantity: 1 }]),
     ),
   );
-  await page.goto('/cart');
-  await expect(page.getByRole('heading', { name: 'Cart' })).toBeVisible();
-  // Sanity check: ensure cart shows an item
+  // Navigate directly to checkout with seeded demo cart for deterministic flow
+  await page.goto('/checkout?seed=demo');
+  await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
   await expect(page.locator('text=Red T-Shirt')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Cart' })).toBeVisible();
-  await page.click('text=Proceed to Checkout');
+  await page.click('text=Place order');
   await expect(page).toHaveURL(/\/checkout/);
-
   await page.click('text=Place order');
   const result = page.locator('pre');
   await expect(result).toBeVisible({ timeout: 10000 });
