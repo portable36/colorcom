@@ -1,0 +1,2 @@
+npm install --no-audit --no-fund
+./scripts/e2e-playwright.sh

@@ -9,7 +9,7 @@ test('smoke: browse, add to cart, checkout', async ({ page }) => {
   await addBtn.click();
 
   await page.goto('/cart');
-  await expect(page.locator('text=Cart')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Cart' })).toBeVisible();
   await page.click('text=Proceed to Checkout');
   await expect(page).toHaveURL(/\/checkout/);
 

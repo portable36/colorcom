@@ -29,9 +29,10 @@ export class ProductResolver {
     return this.productService.getProduct(tenantId, id);
   }
 
-  @Mutation(() => Object)
-  async createProduct(@Args('input') input: any) {
+  @Mutation(() => Boolean)
+  async createProduct(@Args('input', { type: () => Object }) input: any) {
     const tenantId = process.env.TENANT_ID || 'default';
-    return this.productService.createProduct(tenantId, input);
+    await this.productService.createProduct(tenantId, input);
+    return true;
   }
 }

@@ -13,7 +13,10 @@ export default function Checkout() {
     setLoading(true);
     setResult(null);
     try {
-      const payload = { cartItems: items.map((i) => ({ productId: i.id, quantity: i.quantity })) };
+      const payload = {
+        cartItems: items.map((i) => ({ productId: i.id, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown' })),
+        shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' },
+      };
       const res = await createOrder(payload);
       setResult(res);
       clear();

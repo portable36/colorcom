@@ -23,6 +23,7 @@ export class OrderController {
     @Headers('x-user-id') userId: string,
     @Body() createOrderDto: CreateOrderDto,
   ) {
+    console.log('Received createOrder:', { tenantId, userId, body: createOrderDto });
     return this.orderService.createOrder(tenantId, userId, createOrderDto);
   }
 
