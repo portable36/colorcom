@@ -22,8 +22,21 @@ else
 fi
 # Build and run Next.js in production mode (safer & avoids dev-only file locks)
 npm run build --silent
-npm run start &
+# Ensure port 3000 is free (avoid EADDRINUSE from previous runs)
+if command -v lsof >/dev/null 2>&1; then
+  PIDS=$(lsof -ti:3000 || true)
+  if [ -n "$PIDS" ]; then
+    echo "Killing existing process on :3000 ($PIDS)"
+    echo "$PIDS" | xargs -r kill -9 || true
+  fi
+fi
+# Start Next and capture logs
+mkdir -p /tmp/colorcom-e2e-logs
+npm run start > /tmp/colorcom-e2e-logs/frontend.log 2>&1 &
 FRONTEND_PID=$!
+# tail the log in background so we can inspect later if needed
+tail -n +1 -f /tmp/colorcom-e2e-logs/frontend.log &
+TAIL_PID=$!
 popd >/dev/null
 
 # wait for frontend
