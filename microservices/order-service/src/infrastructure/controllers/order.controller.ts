@@ -24,7 +24,33 @@ export class OrderController {
     @Body() createOrderDto: CreateOrderDto,
   ) {
     console.log('Received createOrder:', { tenantId, userId, body: createOrderDto });
-    return this.orderService.createOrder(tenantId, userId, createOrderDto);
+
+    // Basic header validation
+    if (!tenantId) {
+      throw new (require('@nestjs/common').BadRequestException)('Missing x-tenant-id header');
+    }
+
+    // Ensure cartItems is present and non-empty (ValidationPipe handles types but extra safety helps)
+    if (!createOrderDto || !Array.isArray(createOrderDto.cartItems) || createOrderDto.cartItems.length === 0) {
+      throw new (require('@nestjs/common').BadRequestException)('cartItems is required and must contain at least one item');
+    }
+
+    // Sanitize and apply sensible defaults
+    const sanitized = {
+      ...createOrderDto,
+      cartItems: createOrderDto.cartItems.map((i: any) => ({
+        productId: i.productId,
+        vendorId: i.vendorId || 'vendor-unknown',
+        name: i.name || `product-${i.productId}`,
+        price: typeof i.price === 'number' && !Number.isNaN(i.price) ? i.price : 0,
+        quantity: i.quantity && i.quantity > 0 ? i.quantity : 1,
+      })),
+      shippingAddress: createOrderDto.shippingAddress || null,
+    };
+
+    console.log('Sanitized createOrder:', sanitized);
+
+    return this.orderService.createOrder(tenantId, userId || 'guest', sanitized as CreateOrderDto);
   }
 
   @Get()
