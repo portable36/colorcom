@@ -46,6 +46,7 @@ test('product variations: select option and add to cart', async ({ page }) => {
     // Wait for cart item to render
     const cartItem = page.locator('ul > li').first();
     await cartItem.waitFor({ timeout: 15000 });
-    await expect(cartItem.getByText(/M/)).toBeVisible({ timeout: 15000 });
+  // Ensure the option label renders as "variant: M"
+  await expect(cartItem.getByText(/variant:\s*M/)).toBeVisible({ timeout: 15000 });
   }
 });
