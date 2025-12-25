@@ -20,11 +20,6 @@ test('smoke: browse, add to cart, checkout', async ({ page }) => {
   const result = page.locator('pre');
   await expect(result).toBeVisible({ timeout: 10000 });
   const text = await result.innerText();
-  expect(/"id":\s*"?\w+"?/.test(text) || !/"error"/.test(text)).toBeTruthy();
-  await page.click('text=Place order');
-  const result = page.locator('pre');
-  await expect(result).toBeVisible({ timeout: 10000 });
-  const text = await result.innerText();
   expect(text.length).toBeGreaterThan(0);
   // Accept success (id present) or any non-error object
   expect(/"id"\s*:\s*"?\w+"?/.test(text) || !/"error"/.test(text)).toBeTruthy();
