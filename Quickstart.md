@@ -29,10 +29,15 @@ This starts Kong (proxy on port **8000** / admin on **8001**), Postgres (**5432*
 2) Run the built-in E2E smoke script:
 
 ```bash
-# runs a small order → shipping end-to-end check
-bash scripts/e2e-local.sh
-# or: npm run e2e:local
+# Run the Playwright UI smoke test (starts selected backend services, builds and starts the frontend in production, and runs Playwright)
+bash scripts/e2e-playwright.sh
+# or: from the e2e folder:
+# cd e2e && npx playwright test --config=./playwright.config.ts
 ```
+
+Notes:
+- The `scripts/e2e-playwright.sh` script was updated to avoid destructive `rm -rf node_modules` (which can fail on some FUSE host filesystems) and to build/start Next.js in production mode before running Playwright.
+- If a test fails, inspect `e2e/test-results/` and the Next.js server logs in `/tmp/next-start.log` (or run `npm run start` locally and then `npx playwright test`).
 
 3) Run a single service locally (example: auth):
 
