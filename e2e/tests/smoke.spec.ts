@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('smoke: browse, add to cart, checkout', async ({ page }) => {
   await page.goto('/products');
-  await expect(page.locator('text=Products')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible();
 
   const addBtn = page.locator('button', { hasText: 'Add to cart' }).first();
   await expect(addBtn).toBeVisible();
