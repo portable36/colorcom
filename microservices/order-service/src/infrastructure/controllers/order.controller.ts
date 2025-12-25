@@ -21,6 +21,7 @@ export class OrderController {
   async createOrder(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
+    @Req() req: any,
     @Body() createOrderDto: CreateOrderDto,
   ) {
     console.log('Received createOrder:', { tenantId, userId, body: createOrderDto });
@@ -35,16 +36,19 @@ export class OrderController {
       throw new (require('@nestjs/common').BadRequestException)('cartItems is required and must contain at least one item');
     }
 
-    // Sanitize and apply sensible defaults
+    // Access the raw parsed body to preserve unvalidated fields like options
+    const rawBody = req && req.body ? req.body : null;
+
+    // Sanitize and apply sensible defaults; ensure we preserve item-level options from the raw body when present
     const sanitized = {
       ...createOrderDto,
-      cartItems: createOrderDto.cartItems.map((i: any) => ({
+      cartItems: createOrderDto.cartItems.map((i: any, idx: number) => ({
         productId: i.productId,
         vendorId: i.vendorId || 'vendor-unknown',
         name: i.name || `product-${i.productId}`,
         price: typeof i.price === 'number' && !Number.isNaN(i.price) ? i.price : 0,
         quantity: i.quantity && i.quantity > 0 ? i.quantity : 1,
-        metadata: i.options || undefined,
+        metadata: (rawBody && rawBody.cartItems && rawBody.cartItems[idx] && rawBody.cartItems[idx].options) || i.options || undefined,
       })),
       shippingAddress: createOrderDto.shippingAddress || null,
     };
