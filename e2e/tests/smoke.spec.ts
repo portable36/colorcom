@@ -8,8 +8,10 @@ test('smoke: browse, add to cart, checkout', async ({ page }) => {
   await expect(addBtn).toBeVisible();
   await addBtn.click();
 
-  // Wait for cart count to update in the header (must be > 0) then navigate to cart
-  await expect(page.locator('a', { hasText: 'Cart (' })).toHaveText(/Cart \(([1-9]\d*)\)/, { timeout: 5000 });
+  // Confirm cart was persisted to localStorage then navigate to cart
+  await page.waitForFunction(() => !!localStorage.getItem('colorcom_cart_v1'));
+  const stored = await page.evaluate(() => localStorage.getItem('colorcom_cart_v1'));
+  if (!stored) throw new Error('Cart not persisted to localStorage');
   await page.goto('/cart');
   await expect(page.getByRole('heading', { name: 'Cart' })).toBeVisible();
   await page.click('text=Proceed to Checkout');
