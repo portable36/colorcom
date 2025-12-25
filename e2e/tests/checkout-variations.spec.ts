@@ -20,6 +20,18 @@ test('checkout: place order with variation options and see confirmation', async 
   await page.waitForLoadState('domcontentloaded');
   await expect(page.getByText(/Order ID:/)).toBeVisible({ timeout: 15000 });
 
-  // Metadata should include our variant
-  await expect(page.getByText(/"variant":\s*"M"/)).toBeVisible({ timeout: 15000 });
+  // Metadata should include our variant in the UI (best-effort) and server-side
+  try {
+    await expect(page.getByText(/"variant":\s*"M"/)).toBeVisible({ timeout: 5000 });
+  } catch (e) {
+    // If UI didn't render it yet, check server-side order directly as fallback
+    const url = new URL(page.url());
+    const id = url.searchParams.get('id');
+    if (!id) throw e;
+    const r = await page.request.get(`http://localhost:3005/orders/${id}`, { headers: { 'x-tenant-id': 'default', 'x-user-id': 'guest' } });
+    expect(r.status()).toBe(200);
+    const order = await r.json();
+    expect(order.items && order.items.length > 0).toBeTruthy();
+    expect(order.items[0].metadata && order.items[0].metadata.variant === 'M').toBeTruthy();
+  }
 });

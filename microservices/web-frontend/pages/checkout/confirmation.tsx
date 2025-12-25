@@ -33,7 +33,7 @@ export default function Confirmation() {
               {order.items.map((it: any) => (
                 <li key={it.id} className="border p-2 rounded">
                   <div>{it.name} — ${it.price} × {it.quantity}</div>
-                  {it.metadata && <div className="text-sm text-gray-600">{JSON.stringify(it.metadata)}</div>}
+                  {it.metadata && <pre className="text-sm text-gray-600 whitespace-pre-wrap">{JSON.stringify(it.metadata, null, 2)}</pre>}
                 </li>
               ))}
             </ul>
