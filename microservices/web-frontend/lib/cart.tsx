@@ -25,6 +25,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      console.log('Restoring cart from localStorage:', raw);
       if (raw) setItems(JSON.parse(raw));
     } catch (e) {
       console.warn('Failed to restore cart', e);
