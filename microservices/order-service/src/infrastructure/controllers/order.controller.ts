@@ -44,6 +44,7 @@ export class OrderController {
         name: i.name || `product-${i.productId}`,
         price: typeof i.price === 'number' && !Number.isNaN(i.price) ? i.price : 0,
         quantity: i.quantity && i.quantity > 0 ? i.quantity : 1,
+        metadata: i.options || undefined,
       })),
       shippingAddress: createOrderDto.shippingAddress || null,
     };

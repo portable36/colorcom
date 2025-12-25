@@ -1,4 +1,4 @@
-import { IsArray, ValidateNested, IsString, IsOptional, IsNumber, IsInt, Min } from 'class-validator';
+import { IsArray, ValidateNested, IsString, IsOptional, IsNumber, IsInt, Min, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CartItemDto {
@@ -16,6 +16,10 @@ export class CartItemDto {
   @IsOptional()
   @IsNumber()
   price?: number;
+
+  @IsOptional()
+  @IsObject()
+  options?: Record<string, any>;
 
   @IsOptional()
   @IsInt()

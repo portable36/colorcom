@@ -24,7 +24,7 @@ export class OrderService {
       const shippingFee = createOrderDto.shippingFee || 5.0;
       const finalTotal = cartTotal + taxAmount + shippingFee;
 
-      // Create order with items
+      // Create order with items (use nested create so returned object includes items)
       const order = await this.prisma.order.create({
         data: {
           tenantId,
@@ -35,20 +35,17 @@ export class OrderService {
           finalTotal: Math.round(finalTotal * 100) / 100,
           status: 'PENDING',
           paymentStatus: 'UNPAID',
-          metadata: {
-            shippingAddress: createOrderDto.shippingAddress,
-          },
+          metadata: createOrderDto.shippingAddress ? { shippingAddress: { ...createOrderDto.shippingAddress } } : undefined,
           items: {
-            createMany: {
-              data: createOrderDto.cartItems.map((item) => ({
-                productId: item.productId,
-                vendorId: item.vendorId,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                subtotal: Math.round(item.price * item.quantity * 100) / 100,
-              })),
-            },
+            create: createOrderDto.cartItems.map((item) => ({
+              productId: item.productId,
+              vendorId: item.vendorId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              subtotal: Math.round(item.price * item.quantity * 100) / 100,
+              metadata: item.metadata || undefined,
+            })),
           },
         },
         include: {
