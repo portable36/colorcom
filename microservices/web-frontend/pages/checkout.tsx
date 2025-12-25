@@ -10,14 +10,8 @@ export default function Checkout() {
   const [result, setResult] = useState<any>(null);
 
   // Allow seeding a demo cart by using ?seed=demo in the URL (helps deterministic e2e)
-  const [seedItems, setSeedItems] = useState<any[] | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    if ((!items || items.length === 0) && router.query.seed === 'demo') {
-      setSeedItems([{ id: 'prod-1', name: 'Red T-Shirt', price: 19.99, quantity: 1 }]);
-    }
-  }, [router.query, items]);
+  const seedItems = (router && router.query && router.query.seed === 'demo') ? [{ id: 'prod-1', name: 'Red T-Shirt', price: 19.99, quantity: 1 }] : null;
 
   const activeItems = (items && items.length > 0) ? items : (seedItems || []);
   const total = activeItems.reduce((s, i) => s + i.price * i.quantity, 0);
