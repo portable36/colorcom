@@ -24,6 +24,7 @@ export default function Cart() {
           <li key={it.id} className="border p-3 rounded flex justify-between items-center">
             <div>
               <div className="font-medium">{it.name}</div>
+              {it.options && <div className="text-sm text-gray-600">{Object.entries(it.options).map(([k,v]) => <span key={k} className="block">{k}: {v}</span>)}</div>}
               <div className="text-sm text-gray-600">${it.price} × {it.quantity}</div>
             </div>
             <div className="flex items-center gap-2">

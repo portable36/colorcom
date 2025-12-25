@@ -22,15 +22,16 @@ export default function Search() {
   return (
     <Layout>
       <h1 className="text-xl font-semibold">Search</h1>
-      <div className="mt-4 flex gap-2">
-        <input value={q} onChange={(e) => setQ(e.target.value)} className="border px-2 py-1 flex-1" placeholder="Search products" />
-        <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={doSearch} disabled={!q || loading}>{loading ? 'Searching…' : 'Search'}</button>
-      </div>
+      <form role="search" className="mt-4 flex gap-2" onSubmit={(e) => { e.preventDefault(); doSearch(); }}>
+        <label htmlFor="q" className="sr-only">Search products</label>
+        <input id="q" value={q} onChange={(e) => setQ(e.target.value)} className="border px-2 py-1 flex-1" placeholder="Search products" aria-label="Search products" />
+        <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded" disabled={!q || loading}>{loading ? 'Searching…' : 'Search'}</button>
+      </form>
 
-      <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
         {results.map((p: any) => (
           <li key={p.id} className="border p-4 rounded bg-white shadow-sm">
-            <h2 className="font-medium">{p.name}</h2>
+            <h2 className="font-medium"><a href={`/products/${p.id}`} className="text-blue-600">{p.name}</a></h2>
             <p className="text-sm text-gray-600">{p.description}</p>
             <div className="mt-2 font-bold">${p.price}</div>
           </li>

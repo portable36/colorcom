@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 export type CartItem = {
-  id: string;
+  id: string; // unique id for cart entry (productId + options)
+  productId: string;
   name: string;
   price: number;
   quantity: number;
+  options?: Record<string, string>;
 };
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (item: CartItem) => void;
+  addItem: (item: Partial<CartItem> & { productId?: string }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clear: () => void;
@@ -40,13 +42,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items]);
 
-  function addItem(item: CartItem) {
+  function makeUid(productId: string, options?: Record<string, string>) {
+    return `${productId}|${options ? encodeURIComponent(JSON.stringify(options)) : ''}`;
+  }
+
+  function addItem(item: Partial<CartItem> & { productId?: string }) {
     setItems((cur) => {
-      const found = cur.find((c) => c.id === item.id);
+      const productId = item.productId || (item as any).id;
+      const options = item.options || undefined;
+      const uid = makeUid(productId as string, options);
+      const quantity = item.quantity || 1;
+      const found = cur.find((c) => c.id === uid);
       if (found) {
-        return cur.map((c) => (c.id === item.id ? { ...c, quantity: c.quantity + item.quantity } : c));
+        return cur.map((c) => (c.id === uid ? { ...c, quantity: c.quantity + quantity } : c));
       }
-      return [...cur, item];
+      return [
+        ...cur,
+        {
+          id: uid,
+          productId: productId as string,
+          name: item.name || 'product',
+          price: item.price || 0,
+          quantity,
+          options,
+        } as CartItem,
+      ];
     });
   }
 

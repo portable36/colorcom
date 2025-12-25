@@ -1,2 +1,22 @@
 npm install --no-audit --no-fund
 ./scripts/e2e-playwright.sh
+
+> web-frontend@0.1.0 start
+> next start -p 3000
+Run stack + e2e smoke:
+
+From repository root:
+e2e-playwright.sh
+Starts selected backend services, applies prisma pushes, builds and starts frontend (production), runs Playwright tests, and stops the frontend after tests.
+Or run manually:
+
+Start services:
+docker compose up -d postgres redis elasticsearch zookeeper kafka product-service order-service cart-service inventory-service shipping-service mongo
+Build & start frontend:
+cd microservices/web-frontend
+npm ci
+npm run build
+npx next start -p 3000
+Run Playwright:
+cd e2e
+npx playwright test --config=./playwright.config.ts

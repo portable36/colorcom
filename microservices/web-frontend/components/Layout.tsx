@@ -13,6 +13,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <h1 className="text-lg font-semibold" aria-label="Colorcom Storefront">Colorcom</h1>
           <nav aria-label="Main navigation">
             <Link href="/products" className="mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Products">Products</Link>
+            <Link href="/search" className="mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Search">Search</Link>
+            <Link href="/wishlist" className="mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Wishlist">Wishlist</Link>
+            <Link href="/account" className="mr-4 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Account">Account</Link>
             <Link href="/cart" className="focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label={`Cart, ${count} items`}>Cart ({count})</Link>
           </nav>
         </div>

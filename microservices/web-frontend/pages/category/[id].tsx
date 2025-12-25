@@ -7,13 +7,13 @@ export default function Category({ id, products }: any) {
   return (
     <Layout>
       <h1 className="text-xl font-semibold">Category: {id}</h1>
-      <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite">
         {products.map((p: any) => (
           <li key={p.id} className="border p-4 rounded bg-white shadow-sm">
-            <h2 className="font-medium">{p.name}</h2>
+            <h2 className="font-medium"><a href={`/products/${p.id}`} className="text-blue-600">{p.name}</a></h2>
             <p className="text-sm text-gray-600">{p.description}</p>
             <div className="mt-2 font-bold">${p.price}</div>
-            <Link href={`/products/${p.id}`} className="text-blue-600">View</Link>
+            <Link href={`/products/${p.id}`} className="text-sm text-blue-600">View</Link>
           </li>
         ))}
       </ul>
