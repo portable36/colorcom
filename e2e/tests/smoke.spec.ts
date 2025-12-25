@@ -21,7 +21,7 @@ test('smoke: browse, add to cart, checkout', async ({ page }) => {
       'x-tenant-id': 'default',
       'x-user-id': 'guest',
     },
-    data: JSON.stringify({ cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 19.99, quantity: 1 }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } }),
+    data: { cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 19.99, quantity: 1 }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } },
   });
   expect(orderRes.status()).toBe(201);
   const json = await orderRes.json();

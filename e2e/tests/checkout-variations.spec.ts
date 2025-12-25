@@ -41,10 +41,18 @@ test('checkout: place order with variation options and see confirmation', async 
     // As a fallback create deterministic order via API and navigate to confirmation
     const create = await page.request.post('http://localhost:3005/orders', {
       headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'default', 'x-user-id': 'guest' },
-      data: JSON.stringify({ cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 21.99, quantity: 1, options: { variant: 'M' } }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } }),
+      data: { cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 21.99, quantity: 1, options: { variant: 'M' } }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } },
     });
     expect(create.status()).toBe(201);
     const j = await create.json();
+
+    // wait briefly for DB persistence and then verify server-side the metadata is present
+    await new Promise((r) => setTimeout(r, 250));
+    const check = await page.request.get(`http://localhost:3005/orders/${j.id}`, { headers: { 'x-tenant-id': 'default', 'x-user-id': 'guest' } });
+    expect(check.ok()).toBeTruthy();
+    const order = await check.json();
+    expect(order.items && order.items[0] && order.items[0].metadata && order.items[0].metadata.variant === 'M').toBeTruthy();
+
     await page.goto(`/checkout/confirmation?id=${j.id}`);
     await page.waitForLoadState('domcontentloaded');
     await expect(page.getByText(/"variant":\s*"M"/)).toBeVisible({ timeout: 15000 });

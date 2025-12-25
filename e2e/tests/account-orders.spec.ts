@@ -4,7 +4,7 @@ test('account orders shows placed order', async ({ page }) => {
   // create an order directly via API so it appears in order history
   const orderRes = await page.request.post('http://localhost:3005/orders', {
     headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'default', 'x-user-id': 'guest' },
-    data: JSON.stringify({ cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 19.99, quantity: 1 }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } }),
+    data: { cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 19.99, quantity: 1 }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } },
   });
   expect(orderRes.status()).toBe(201);
   const json = await orderRes.json();
