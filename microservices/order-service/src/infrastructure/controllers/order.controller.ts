@@ -38,6 +38,7 @@ export class OrderController {
 
     // Access the raw parsed body to preserve unvalidated fields like options
     const rawBody = req && req.body ? req.body : null;
+    console.log('Raw request body:', rawBody);
 
     // Sanitize and apply sensible defaults; ensure we preserve item-level options from the raw body when present
     const sanitized = {
@@ -48,7 +49,7 @@ export class OrderController {
         name: i.name || `product-${i.productId}`,
         price: typeof i.price === 'number' && !Number.isNaN(i.price) ? i.price : 0,
         quantity: i.quantity && i.quantity > 0 ? i.quantity : 1,
-        metadata: (rawBody && rawBody.cartItems && rawBody.cartItems[idx] && rawBody.cartItems[idx].options) || i.options || undefined,
+        metadata: (rawBody && rawBody.cartItems && rawBody.cartItems[idx] && (rawBody.cartItems[idx].options || rawBody.cartItems[idx].metadata)) || i.options || i.metadata || undefined,
       })),
       shippingAddress: createOrderDto.shippingAddress || null,
     };
