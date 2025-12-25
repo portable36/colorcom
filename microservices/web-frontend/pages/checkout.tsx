@@ -21,7 +21,7 @@ export default function Checkout() {
     setResult(null);
     try {
       const payload = {
-        cartItems: activeItems.map((i) => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown', options: (i as any).options || undefined })),
+        cartItems: activeItems.map((i) => ({ productId: (i as any).productId || (i as any).id, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown', options: (i as any).options || undefined })),
         shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' },
       };
       const res = await createOrder(payload);
