@@ -8,6 +8,15 @@
 
 **Prerequisites:** Docker & Docker Compose (v2+), Node.js (for service-level commands)
 
+0) Create a local env (optional but recommended) ⚠️
+
+Before starting the stack, copy the example env into a local `.env` and fill in real values. Do NOT commit `.env` — it is ignored by the repository.
+
+```bash
+cp .env.example .env
+# then edit .env to set real secrets (JWT_SECRET, DATABASE_URL, etc.)
+```
+
 1) Start the whole stack (development):
 
 ```bash
