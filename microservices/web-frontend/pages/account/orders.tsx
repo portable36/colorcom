@@ -8,11 +8,39 @@ export default function Orders() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    fetch('/api/orders')
-      .then((r) => r.json())
-      .then((json) => { if (mounted) setOrders(json.data || json || []); })
-      .catch(() => { if (mounted) setOrders([]); })
-      .finally(() => mounted && setLoading(false));
+
+    // polling helper to retry a few times for eventual consistency
+    async function load() {
+      for (let i = 0; i < 5; i++) {
+        try {
+          const res = await fetch('/api/orders');
+          if (!res.ok) throw new Error('network');
+          const json = await res.json();
+          const data = json.data || json || [];
+          if (data && data.length > 0) {
+            if (mounted) setOrders(data);
+            return;
+          }
+          // wait and retry
+          await new Promise((r) => setTimeout(r, 800));
+        } catch (e) {
+          await new Promise((r) => setTimeout(r, 800));
+        }
+      }
+      // final attempt
+      try {
+        const res = await fetch('/api/orders');
+        const json = await res.json();
+        if (mounted) setOrders(json.data || json || []);
+      } catch (_) {
+        if (mounted) setOrders([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+
     return () => { mounted = false };
   }, []);
 
