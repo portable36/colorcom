@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import Layout from '../components/Layout';
 
 jest.mock('../lib/cart', () => ({ useCart: () => ({ items: [] }) }));
+jest.mock('next/link', () => ({ __esModule: true, default: ({ children, href }: any) => React.createElement('a', { href }, children) }));
 
 describe('Layout', () => {
   it('renders header and children', () => {
