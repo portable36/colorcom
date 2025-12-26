@@ -78,23 +78,8 @@ npx prisma generate
 ## Secrets & envs 🔐
 
 - Example `.env.example` files are included (see `microservices/auth-service/.env.example`).
-- Admin key: set `ADMIN_KEY` for the admin API (used by `/admin/settings` and `/api/admin/settings`). Use a strong value and add it to CI secrets.
 - **Do not** keep production secrets in `docker-compose.yml` — use a secret manager, Docker secrets, or environment variables in deployment.
 - Replace `JWT_SECRET` and DB passwords before deploying to production.
-
-### Admin dashboard (site customization)
-
-A minimal admin dashboard is available at `/admin/settings` in the frontend. It allows editing:
-- Site title
-- Brand color (hex)
-- Favicon (image upload)
-
-To update settings locally:
-1. Set `ADMIN_KEY` in your `.env` (see `.env.dev.example`).
-2. Start the frontend (or the dev stack).
-3. Visit `http://localhost:3000/admin/settings`, supply the admin key in the form, and update settings.
-
-Settings are persisted to `microservices/web-frontend/data/settings.json` and uploaded favicons are stored in `public/uploads/`.
 
 ---
 
