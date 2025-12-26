@@ -30,3 +30,25 @@ body {
 @media (max-width: 640px) {
   html { font-size: 15px; }
 }
+
+/* Responsive container */
+.container {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Image placeholder utility */
+.image-placeholder {
+  background: linear-gradient(90deg, rgba(0,0,0,0.02) 25%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.02) 75%);
+  background-size: 200% 100%;
+  animation: placeholderShimmer 1.2s linear infinite;
+}
+
+@keyframes placeholderShimmer {
+  0% { background-position: 200% 0 }
+  100% { background-position: -200% 0 }
+}
+

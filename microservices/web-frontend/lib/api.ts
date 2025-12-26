@@ -1,5 +1,6 @@
 const API = process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://localhost:3002';
 const ORDER_API = process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://localhost:3005';
+const CART_API = process.env.NEXT_PUBLIC_CART_SERVICE_URL || 'http://localhost:3004';
 
 export async function fetchProducts() {
   try {
@@ -96,5 +97,50 @@ export async function fetchVendorProducts(vendorId: string) {
     // Fallback: filter from sample data
     const all = await fetchProducts();
     return (all || []).filter((p: any) => p.vendorId === vendorId || p.vendorId === undefined);
+  }
+}
+
+// Cart service helpers
+export async function syncAddToCart(userId: string, payload: any) {
+  try {
+    const res = await fetch(`${CART_API}/cart`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': userId, 'x-tenant-id': 'default' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Cart add failed');
+    return res.json();
+  } catch (e) {
+    console.warn('syncAddToCart failed', e);
+    return null;
+  }
+}
+
+export async function syncUpdateCartItem(userId: string, productId: string, payload: any) {
+  try {
+    const res = await fetch(`${CART_API}/cart/${encodeURIComponent(productId)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': userId, 'x-tenant-id': 'default' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Cart update failed');
+    return res.json();
+  } catch (e) {
+    console.warn('syncUpdateCartItem failed', e);
+    return null;
+  }
+}
+
+export async function syncRemoveFromCart(userId: string, productId: string) {
+  try {
+    const res = await fetch(`${CART_API}/cart/${encodeURIComponent(productId)}`, {
+      method: 'DELETE',
+      headers: { 'x-user-id': userId, 'x-tenant-id': 'default' },
+    });
+    if (!res.ok) throw new Error('Cart remove failed');
+    return true;
+  } catch (e) {
+    console.warn('syncRemoveFromCart failed', e);
+    return false;
   }
 }

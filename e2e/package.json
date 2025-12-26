@@ -6,6 +6,7 @@
     "test": "playwright test --config=./playwright.config.ts"
   },
   "devDependencies": {
-    "@playwright/test": "^1.38.0"
+    "@playwright/test": "^1.38.0",
+    "@axe-core/playwright": "^4.6.1"
   }
 }
