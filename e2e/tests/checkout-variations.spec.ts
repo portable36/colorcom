@@ -41,7 +41,7 @@ test('checkout: place order with variation options and see confirmation', async 
     // As a fallback create deterministic order via API and navigate to confirmation
     const create = await page.request.post('http://localhost:3005/orders', {
       headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'default', 'x-user-id': 'guest' },
-      data: { cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 21.99, quantity: 1, options: { variant: 'M' } }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } },
+      data: JSON.stringify({ cartItems: [{ productId: 'prod-1', vendorId: 'vendor-unknown', name: 'Red T-Shirt', price: 21.99, quantity: 1, options: { variant: 'M' } }], shippingAddress: { street: '123 Test St', city: 'Testville', state: 'TS', zipCode: '00000', country: 'Testland' } }),
     });
     expect(create.status()).toBe(201);
     const j = await create.json();
