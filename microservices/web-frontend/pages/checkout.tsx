@@ -79,14 +79,26 @@ export default function Checkout() {
     setSubmitting(true);
     setErrorMessage(null);
     try {
+      // For MVP we use SSLCommerz hosted checkout. Initiate a payment which will create an order and return a redirect URL.
       const payload = {
-        cartItems: activeItems.map((i) => ({ productId: (i as any).productId || (i as any).id, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown', options: (i as any).options || undefined })),
+        items: activeItems.map((i) => ({ productId: (i as any).productId || (i as any).id, name: i.name, price: i.price, quantity: i.quantity, vendorId: (i as any).vendorId || 'vendor-unknown', options: (i as any).options || undefined })),
         shippingAddress: shipping,
-        payment: { nameOnCard: payment.nameOnCard.replace(/\*/g, ''), method: 'card' },
+        amount: total,
+        customerEmail: (shipping && (shipping as any).email) || 'customer@example.com',
       };
-      const res = await createOrder(payload);
-      clear();
-      if (res && res.id) router.push(`/checkout/confirmation?id=${res.id}`);
+
+      const r = await fetch('/api/payments/sslcommerz/initiate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!r.ok) {
+        const text = await r.text().catch(() => '');
+        throw new Error('Payment initiation failed: ' + text);
+      }
+      const j = await r.json();
+      // redirect to hosted payment page
+      if (j && j.redirectUrl) {
+        window.location.href = j.redirectUrl;
+      } else {
+        throw new Error('No redirect URL returned from payment gateway');
+      }
     } catch (err: any) {
       setErrorMessage(String(err.message || err));
     } finally {

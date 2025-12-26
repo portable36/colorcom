@@ -34,6 +34,7 @@
     "identity-obj-proxy": "^3.0.0",
     "@types/jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
+    "node-mocks-http": "^1.11.0",
     "@storybook/react": "^7.0.0",
     "@storybook/addon-essentials": "^7.0.0"
   }
