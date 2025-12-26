@@ -1,6 +1,7 @@
 import Layout from '../components/Layout';
 import { useCart } from '../lib/cart';
 import Link from 'next/link';
+import CartRow from '../components/CartRow';
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, clear } = useCart();
@@ -21,17 +22,7 @@ export default function Cart() {
       <h1 className="text-xl font-semibold">Cart</h1>
       <ul className="mt-4 space-y-3">
         {items.map((it) => (
-          <li key={it.id} className="border p-3 rounded flex justify-between items-center">
-            <div>
-              <div className="font-medium">{it.name}</div>
-              {it.options && <div className="text-sm text-gray-600">{Object.entries(it.options).map(([k,v]) => <span key={k} className="block">{k}: {v}</span>)}</div>}
-              <div className="text-sm text-gray-600">${it.price} × {it.quantity}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="number" min={1} value={it.quantity} onChange={(e) => updateQuantity(it.id, Number(e.target.value))} className="w-20 border rounded px-2 py-1" />
-              <button className="text-red-600" onClick={() => removeItem(it.id)}>Remove</button>
-            </div>
-          </li>
+          <CartRow key={it.id} item={it} updateQuantity={updateQuantity} removeItem={removeItem} updateItemOptions={updateItemOptions} />
         ))}
       </ul>
 

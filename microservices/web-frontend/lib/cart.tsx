@@ -28,7 +28,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       console.log('Restoring cart from localStorage:', raw);
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const parsed: CartItem[] = JSON.parse(raw);
+        // dedupe by id, summing quantities
+        const map = new Map<string, CartItem>();
+        for (const it of parsed) {
+          if (map.has(it.id)) {
+            const prev = map.get(it.id)!;
+            prev.quantity += it.quantity;
+            map.set(it.id, prev);
+          } else {
+            map.set(it.id, { ...it });
+          }
+        }
+        setItems(Array.from(map.values()));
+      }
     } catch (e) {
       console.warn('Failed to restore cart', e);
     }
@@ -46,7 +60,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return `${productId}|${options ? encodeURIComponent(JSON.stringify(options)) : ''}`;
   }
 
-  function addItem(item: Partial<CartItem> & { productId?: string }) {
+  async function addItem(item: Partial<CartItem> & { productId?: string }) {
+    // optimistic update
     setItems((cur) => {
       const productId = item.productId || (item as any).id;
       const options = item.options || undefined;
@@ -68,18 +83,80 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         } as CartItem,
       ];
     });
+
+    // try to sync to server (best-effort)
+    try {
+      const userId = (window as any).__USER_ID__ || 'guest';
+      await import('./api').then(({ syncAddToCart }) => syncAddToCart(userId, item));
+    } catch (e) {
+      console.warn('remote add failed', e);
+    }
   }
 
-  function removeItem(id: string) {
+  async function removeItem(id: string) {
+    const item = items.find((i) => i.id === id);
+    // optimistic removal
     setItems((cur) => cur.filter((c) => c.id !== id));
+    // try remote delete
+    try {
+      if (!item) return;
+      const userId = (window as any).__USER_ID__ || 'guest';
+      await import('./api').then(({ syncRemoveFromCart }) => syncRemoveFromCart(userId, item.productId));
+    } catch (e) {
+      console.warn('remote remove failed', e);
+    }
   }
 
-  function updateQuantity(id: string, quantity: number) {
+  async function updateQuantity(id: string, quantity: number) {
+    // optimistic update
     setItems((cur) => cur.map((c) => (c.id === id ? { ...c, quantity } : c)));
+    // try to sync change to server (best-effort)
+    try {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const userId = (window as any).__USER_ID__ || 'guest';
+      const productId = item.productId;
+      await import('./api').then(({ syncUpdateCartItem }) => syncUpdateCartItem(userId, productId, { quantity }));
+    } catch (e) {
+      console.warn('remote update failed', e);
+    }
   }
 
-  function clear() {
+  async function clear() {
     setItems([]);
+    try {
+      const userId = (window as any).__USER_ID__ || 'guest';
+      await import('./api').then(({ syncRemoveFromCart }) => syncRemoveFromCart(userId, ''));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  async function updateItemOptions(id: string, options?: Record<string, string>, price?: number) {
+    setItems((cur) => {
+      const item = cur.find((c) => c.id === id);
+      if (!item) return cur;
+      const newId = makeUid(item.productId, options);
+      const newItem: CartItem = { ...item, id: newId, options, price: price ?? item.price };
+      // remove old and insert/update new
+      const filtered = cur.filter((c) => c.id !== id);
+      const found = filtered.find((c) => c.id === newId);
+      if (found) {
+        // merge quantities
+        return filtered.map((c) => (c.id === newId ? { ...c, quantity: c.quantity + item.quantity, price: newItem.price } : c));
+      }
+      return [...filtered, newItem];
+    });
+
+    // try to sync change
+    try {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      const userId = (window as any).__USER_ID__ || 'guest';
+      await import('./api').then(({ syncUpdateCartItem }) => syncUpdateCartItem(userId, item.productId, { options, price }));
+    } catch (e) {
+      console.warn('remote update options failed', e);
+    }
   }
 
   return (
