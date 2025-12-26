@@ -25,8 +25,23 @@ export default function Confirmation() {
       {!loading && !order && <p>Order not found</p>}
       {order && (
         <div className="mt-4">
-          <div className="font-medium">Order ID: {order.id}</div>
+          <div className="flex items-center justify-between">
+            <div className="font-medium">Order ID: <span className="font-mono">{order.id}</span></div>
+            <div>
+              <button className="text-sm text-gray-600 mr-2" onClick={() => navigator.clipboard?.writeText(order.id)}>Copy ID</button>
+              <a className="text-sm text-blue-600" href="/account/orders">View orders</a>
+            </div>
+          </div>
+
           <div className="mt-2">Total: ${order.finalTotal}</div>
+
+          {order.shippingAddress && (
+            <div className="mt-4">
+              <h2 className="font-medium">Shipping</h2>
+              <div className="text-sm text-gray-600">{order.shippingAddress.fullName}<br />{order.shippingAddress.street}<br />{order.shippingAddress.city} {order.shippingAddress.state} {order.shippingAddress.zipCode}<br />{order.shippingAddress.country}</div>
+            </div>
+          )}
+
           <div className="mt-4">
             <h2 className="font-medium">Items</h2>
             <ul className="mt-2 space-y-2">
@@ -38,6 +53,8 @@ export default function Confirmation() {
               ))}
             </ul>
           </div>
+
+          <div className="mt-4 text-sm text-gray-600">Status: {order.status || 'received'}</div>
         </div>
       )}
     </Layout>
