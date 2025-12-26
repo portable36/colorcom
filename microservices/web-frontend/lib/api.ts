@@ -74,3 +74,27 @@ export async function fetchOrders() {
   const json = await res.json();
   return json.data || json;
 }
+
+// Vendor helpers
+export async function fetchVendor(id: string) {
+  try {
+    const res = await fetch(`${API}/vendors/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch vendor');
+    return res.json();
+  } catch (e) {
+    // Fallback: return a simple vendor object
+    return { id, name: `Vendor ${id}`, description: 'Local vendor fallback' };
+  }
+}
+
+export async function fetchVendorProducts(vendorId: string) {
+  try {
+    const res = await fetch(`${API}/products?vendorId=${encodeURIComponent(vendorId)}`);
+    if (!res.ok) throw new Error('Failed to fetch vendor products');
+    return res.json();
+  } catch (e) {
+    // Fallback: filter from sample data
+    const all = await fetchProducts();
+    return (all || []).filter((p: any) => p.vendorId === vendorId || p.vendorId === undefined);
+  }
+}

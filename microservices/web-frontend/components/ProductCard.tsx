@@ -40,6 +40,7 @@ export const ProductCard: React.FC<Props> = ({ product }) => {
       <div className="flex-1">
         <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
         <div className="text-gray-600">${product.price.toFixed(2)}</div>
+        {product.vendorId && <div className="text-sm text-gray-500 mt-1">By <a href={`/vendor/${product.vendorId}`} className="text-blue-600 underline">{product.vendorId}</a></div>}
       </div>
       <div className="mt-4 flex gap-2">
         <Button variant="primary" size="sm">Add to cart</Button>
