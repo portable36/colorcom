@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Card } from './Card'
 import { Button } from './Button'
+import { useWishlist } from '../lib/wishlist'
 
 type Product = {
   id: string
@@ -16,6 +17,14 @@ type Props = {
 }
 
 export const ProductCard: React.FC<Props> = ({ product }) => {
+  const { items, add, remove } = useWishlist()
+  const isWish = items.some((i) => i.id === product.id)
+
+  function toggleWishlist() {
+    if (isWish) remove(product.id)
+    else add({ id: product.id, name: product.name, price: product.price, image: product.image })
+  }
+
   return (
     <Card className="flex flex-col">
       <Link href={`/products/${product.id}`} className="block">
@@ -34,7 +43,9 @@ export const ProductCard: React.FC<Props> = ({ product }) => {
       </div>
       <div className="mt-4 flex gap-2">
         <Button variant="primary" size="sm">Add to cart</Button>
-        <Button variant="ghost" size="sm">Wishlist</Button>
+        <Button aria-pressed={isWish} onClick={toggleWishlist} variant="ghost" size="sm" aria-label={isWish ? 'Remove from wishlist' : 'Add to wishlist'}>
+          {isWish ? '♥ Wishlist' : '♡ Wishlist'}
+        </Button>
       </div>
     </Card>
   )

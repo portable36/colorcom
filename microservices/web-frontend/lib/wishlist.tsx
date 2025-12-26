@@ -25,11 +25,48 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       // ignore
     }
+
+    // Cross-tab sync via BroadcastChannel when available
+    let bc: BroadcastChannel | null = null;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      bc = new BroadcastChannel('colorcom:wishlist');
+      bc.onmessage = (ev) => {
+        if (ev?.data?.type === 'update' && ev.data.items) {
+          setItems(ev.data.items);
+        }
+      };
+    }
+
+    // Fallback: storage event
+    const onStorage = (ev: StorageEvent) => {
+      if (ev.key === KEY && ev.newValue) {
+        try {
+          setItems(JSON.parse(ev.newValue));
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      if (bc) bc.close();
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem(KEY, JSON.stringify(items));
+      // broadcast update
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc2 = new BroadcastChannel('colorcom:wishlist');
+        bc2.postMessage({ type: 'update', items });
+        bc2.close();
+      } else {
+        // fallback: bump a timestamp key to trigger storage event
+        localStorage.setItem(`${KEY}:updatedAt`, Date.now().toString());
+      }
     } catch (e) {
       // ignore
     }
