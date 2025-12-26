@@ -10,6 +10,12 @@ body {
   @apply bg-gray-50 text-gray-900;
 }
 
+:root {
+  --color-brand: #2563eb;
+  --color-brand-contrast: #ffffff;
+  --radius-md: 0.5rem;
+}
+
 :focus {
   outline: none;
 }
