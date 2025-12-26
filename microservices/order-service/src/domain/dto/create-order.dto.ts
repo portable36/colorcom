@@ -22,6 +22,10 @@ export class CartItemDto {
   options?: Record<string, any>;
 
   @IsOptional()
+  @IsObject()
+  metadata?: Record<string, any>;
+
+  @IsOptional()
   @IsInt()
   @Min(1)
   quantity?: number;

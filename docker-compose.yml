@@ -2,7 +2,9 @@
 
 services:
   kong:
-    image: kong:latest
+    build:
+      context: ./kong
+    image: colorcom-kong:local
     container_name: colorcom-kong
     environment:
       KONG_DATABASE: "off"
@@ -12,8 +14,6 @@ services:
       KONG_LOG_LEVEL: info
       KONG_PLUGINS: bundled
       KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
-    volumes:
-      - ./kong/kong.yml:/kong/kong.yml:ro
     ports:
       - "8000:8000"   # Proxy (public API)
       - "8001:8001"   # Admin API
@@ -345,14 +345,16 @@ services:
       - zookeeper_data:/var/lib/zookeeper/data
 
   prometheus:
-    image: prom/prometheus:latest
+    build:
+      context: ./kong
+      dockerfile: prometheus.Dockerfile
+    image: colorcom-prometheus:local
     container_name: colorcom-prometheus
     ports:
       - "9090:9090"
     networks:
       - colorcom-net
     volumes:
-      - ./kong/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"

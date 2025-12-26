@@ -104,6 +104,8 @@ export class AuthService {
       },
     });
 
+    if (!user) throw new UnauthorizedException('User not found');
+
     const payload = {
       sub: userId,
       email: email || user.email,
@@ -111,7 +113,7 @@ export class AuthService {
       tenants: user.tenantAccess.map((t) => ({ tenantId: t.tenantId, role: t.role })),
     };
 
-    const accessToken = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRY || '15m' });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: (process.env.JWT_EXPIRY as string) || '15m' });
 
     const refreshTokenExpiry = new Date();
     refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days

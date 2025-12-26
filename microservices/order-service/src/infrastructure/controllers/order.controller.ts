@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, Headers, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, Headers, HttpCode, Req } from '@nestjs/common';
 import { OrderService } from '../../application/services/order.service';
 import { CreateOrderDto } from '../../domain/dto/create-order.dto';
 import { UpdateOrderStatusDto } from '../../domain/dto/update-order-status.dto';
@@ -21,8 +21,8 @@ export class OrderController {
   async createOrder(
     @Headers('x-tenant-id') tenantId: string,
     @Headers('x-user-id') userId: string,
-    @Req() req: any,
-    @Body() createOrderDto: CreateOrderDto,
+    @Req() req?: any,
+    @Body() createOrderDto?: CreateOrderDto,
   ) {
     console.log('Received createOrder:', { tenantId, userId, body: createOrderDto });
 

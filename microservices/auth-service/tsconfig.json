@@ -11,6 +11,8 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
