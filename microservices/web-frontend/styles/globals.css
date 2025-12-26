@@ -51,4 +51,14 @@ body {
   0% { background-position: 200% 0 }
   100% { background-position: -200% 0 }
 }
+/* Header brand color */
+.header-brand {
+  background-color: #fcca19;
+  /* subtle bottom border to keep separation */
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
 
+/* Ensure header links remain readable on brand background */
+.header-brand a, .header-brand nav a {
+  color: #111827; /* gray-900 */
+}

@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b">
+      <header className="header-brand border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-lg font-semibold" aria-label="Colorcom Storefront">Colorcom</h1>
           <nav aria-label="Main navigation">
@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="flex-1 max-w-7xl mx-auto px-4 py-8">{children}</main>
-      <footer className="border-t py-4 text-center text-sm">© Colorcom — Built for demo purposes</footer>
+      <footer className="border-t py-4 text-center text-sm">©2025 Colorfifty | All Rights Reserved | Proudly from BANGLADESH</footer>
     </div>
   );
 }
